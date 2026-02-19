@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>CSE Department - Class Schedule</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #1a73e8;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        h1 span {
+            font-size: 14px;
+            color: #5f6368;
+            font-weight: normal;
+        }
+
+        /* Login Section */
+        .login-section, .admin-section, .student-section {
+            display: none;
+        }
+
+        .login-section.active, .admin-section.active, .student-section.active {
+            display: block;
+        }
+
+        .login-box {
+            background: #f8f9fa;
+            padding: 30px 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #202124;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #5f6368;
+            font-size: 14px;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #1a73e8;
+        }
+
+        button {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            width: 100%;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #1557b0;
+        }
+
+        button.secondary {
+            background: #e8f0fe;
+            color: #1a73e8;
+            margin-top: 10px;
+        }
+
+        button.secondary:hover {
+            background: #d2e3fc;
+        }
+
+        button.logout {
+            background: #dc3545;
+            margin-top: 20px;
+        }
+
+        button.logout:hover {
+            background: #bb2d3b;
+        }
+
+        /* Admin Panel */
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .admin-header h2 {
+            font-size: 20px;
+            color: #202124;
+        }
+
+        .add-btn {
+            background: #34a853;
+            padding: 10px 20px;
+            width: auto;
+            font-size: 14px;
+        }
+
+        .schedule-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .schedule-form h3 {
+            margin-bottom: 15px;
+            color: #202124;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Schedule Cards */
+        .schedule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .schedule-card {
+            background: white;
+            border: 1px solid #dadce0;
+            border-radius: 12px;
+            padding: 16px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .schedule-card.current {
+            border-left: 4px solid #34a853;
+            background: #e8f5e9;
+        }
+
+        .schedule-card.next {
+            border-left: 4px solid #fbbc04;
+            background: #fff3e0;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .course-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a73e8;
+        }
+
+        .course-module {
+            font-size: 14px;
+            color: #5f6368;
+            margin-top: 4px;
+        }
+
+        .time-badge {
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .card-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #3c4043;
+        }
+
+        .detail-item i {
+            font-style: normal;
+            color: #5f6368;
+            min-width: 20px;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #dadce0;
+        }
+
+        .edit-btn, .delete-btn {
+            padding: 8px;
+            font-size: 14px;
+            width: auto;
+            flex: 1;
+        }
+
+        .edit-btn {
+            background: #fbbc04;
+            color: #202124;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+        }
+
+        /* Day Filter */
+        .day-filter {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .day-btn {
+            background: #f1f3f4;
+            color: #5f6368;
+            padding: 10px 16px;
+            border-radius: 30px;
+            font-size: 14px;
+            white-space: nowrap;
+            border: none;
+            width: auto;
+        }
+
+        .day-btn.active {
+            background: #1a73e8;
+            color: white;
+        }
+
+        /* Current Time Display */
+        .current-time {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #202124;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #5f6368;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            h1 { font-size: 20px; }
+            .card-header { flex-direction: column; gap: 10px; }
+            .time-badge { align-self: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            📚 CS Department Class Schedule
+            <span id="user-role"></span>
+        </h1>
+
+        <!-- Login Section -->
+        <div id="loginSection" class="login-section active">
+            <div class="login-box">
+                <h2>Login to View Schedule</h2>
+                <div class="input-group">
+                    <label>Select Role</label>
+                    <select id="roleSelect">
+                        <option value="student">Student (View Only)</option>
+                        <option value="staff">Staff (Admin Access)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Password (for staff: admin123)</label>
+                    <input type="password" id="password" placeholder="Enter password">
+                </div>
+                <button onclick="login()">Login</button>
+                <p style="margin-top: 15px; font-size: 12px; color: #5f6368;">
+                    Demo: Staff password = admin123
+                </p>
+            </div>
+        </div>
+
+        <!-- Student View Section -->
+        <div id="studentSection" class="student-section">
+            <div class="current-time" id="currentTime"></div>
+            
+            <div class="day-filter" id="dayFilter">
+                <button class="day-btn active" onclick="filterByDay('All')">All</button>
+                <button class="day-btn" onclick="filterByDay('Monday')">Monday</button>
+                <button class="day-btn" onclick="filterByDay('Tuesday')">Tuesday</button>
+                <button class="day-btn" onclick="filterByDay('Wednesday')">Wednesday</button>
+                <button class="day-btn" onclick="filterByDay('Thursday')">Thursday</button>
+                <button class="day-btn" onclick="filterByDay('Friday')">Friday</button>
+            </div>
+
+            <div id="scheduleList" class="schedule-list">
+                <!-- Schedule cards will be inserted here -->
+            </div>
+
+            <button class="secondary logout" onclick="logout()">Logout</button>
+        </div>
+
+        <!-- Admin View Section -->
+        <div id="adminSection" class="admin-section">
+            <div class="admin-header">
+                <h2>Manage Schedule</h2>
+                <button class="add-btn" onclick="showAddForm()">+ Add New Class</button>
+            </div>
+
+            <!-- Add/Edit Form -->
+            <div id="scheduleForm" class="schedule-form" style="display: none;">
+                <h3 id="formTitle">Add New Class</h3>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Day</label>
+                        <select id="editDay">
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Course Name</label>
+                        <input type="text" id="editCourse" placeholder="e.g., Data Structures">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Module</label>
+                        <input type="text" id="editModule" placeholder="e.g., Module 3">
+                    </div>
+                    <div class="input-group">
+                        <label>Venue</label>
+                        <input type="text" id="editVenue" placeholder="e.g., Room 401">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Start Time</label>
+                        <input type="time" id="editStartTime">
+                    </div>
+                    <div class="input-group">
+                        <label>End Time</label>
+                        <input type="time" id="editEndTime">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <button onclick="saveSchedule()" style="width: auto;">Save</button>
+                    <button class="secondary" onclick="hideForm()" style="width: auto;">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Admin Schedule List -->
+            <div id="adminScheduleList" class="schedule-list">
+                <!-- Schedule cards with edit/delete will appear here -->
+            </div>
+
+            <button class="logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        // Sample initial data
+        let schedules = [
+            {
+                id: 1,
+                day: 'Monday',
+                course: 'Data Structures',
+                module: 'Module 3: Trees',
+                venue: 'Room 401',
+                startTime: '09:00',
+                endTime: '10:30'
+            },
+            {
+                id: 2,
+                day: 'Monday',
+                course: 'Algorithms',
+                module: 'Module 2: Sorting',
+                venue: 'Room 402',
+                startTime: '11:00',
+                endTime: '12:30'
+            },
+            {
+                id: 3,
+                day: 'Tuesday',
+                course: 'Database Systems',
+                module: 'Module 1: SQL',
+                venue: 'Lab 201',
+                startTime: '14:00',
+                endTime: '15:30'
+            }
+        ];
+
+        // Load from localStorage if available
+        if (localStorage.getItem('schedules')) {
+            schedules = JSON.parse(localStorage.getItem('schedules'));
+        }
+
+        let currentFilter = 'All';
+        let editingId = null;
+
+        // Login function
+        function login() {
+            const role = document.getElementById('roleSelect').value;
+            const password = document.getElementById('password').value;
+
+            if (role === 'staff' && password === 'admin123') {
+                showAdminView();
+            } else if (role === 'student') {
+                showStudentView();
+            } else if (role === 'staff') {
+                alert('Invalid password. Use: admin123');
+            } else {
+                showStudentView();
+            }
+        }
+
+        function showStudentView() {
+            document.getElementById('loginSection').classList.remove('active');
+            document.getElementById('studentSection').classList.add('active');
+            document.getElementById('adminSection').classList.remove('active');
+            document.getElementById('user-role').textContent = '(Student View)';
+            displaySchedules();
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 60000); // Update every minute
+        }
+
+        function showAdminView() {
+            document.getElementById('loginSection').classList.remove('active');
+            document.getElementById('studentSection').classList.remove('active');
+            document.getElementById('adminSection').classList.add('active');
+            document.getElementById('user-role').textContent = '(Admin View)';
+            displayAdminSchedules();
+        }
+
+        function logout() {
+            document.getElementById('loginSection').classList.add('active');
+            document.getElementById('studentSection').classList.remove('active');
+            document.getElementById('adminSection').classList.remove('active');
+            document.getElementById('user-role').textContent = '';
+            currentFilter = 'All';
+        }
+
+        // Update current time
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('currentTime').innerHTML = `🕒 Current Time: ${timeStr}`;
+            displaySchedules(); // Refresh to update current/next indicators
+        }
+
+        // Filter by day
+        function filterByDay(day) {
+            currentFilter = day;
+            document.querySelectorAll('.day-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === day) {
+                    btn.classList.add('active');
+                }
+            });
+            displaySchedules();
+        }
+
+        // Display schedules for students
+        function displaySchedules() {
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+            
+            let filteredSchedules = schedules;
+            if (currentFilter !== 'All') {
+                filteredSchedules = schedules.filter(s => s.day === currentFilter);
+            }
+
+            // Sort by time
+            filteredSchedules.sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+            const scheduleList = document.getElementById('scheduleList');
+            
+            if (filteredSchedules.length === 0) {
+                scheduleList.innerHTML = '<div class="empty-state">No classes scheduled for this day</div>';
+                return;
+            }
+
+            scheduleList.innerHTML = filteredSchedules.map(schedule => {
+                const [startHour, startMin] = schedule.startTime.split(':').map(Number);
+                const [endHour, endMin] = schedule.endTime.split(':').map(Number);
+                const startMins = startHour * 60 + startMin;
+                const endMins = endHour * 60 + endMin;
+                
+                let statusClass = '';
+                if (currentTime >= startMins && currentTime <= endMins) {
+                    statusClass = 'current';
+                } else if (currentTime < startMins && currentTime >= startMins - 30) {
+                    statusClass = 'next';
+                }
+
+                return `
+                    <div class="schedule-card ${statusClass}">
+                        <div class="card-header">
+                            <div>
+                                <div class="course-name">${schedule.course}</div>
+                                <div class="course-module">${schedule.module}</div>
+                            </div>
+                            <div class="time-badge">${schedule.startTime} - ${schedule.endTime}</div>
+                        </div>
+                        <div class="card-details">
+                            <div class="detail-item">
+                                <i>📅</i> ${schedule.day}
+                            </div>
+                            <div class="detail-item">
+                                <i>📍</i> ${schedule.venue}
+                            </div>
+                        </div>
+                        ${statusClass === 'current' ? '<div style="color: #34a853; font-size: 12px; margin-top: 8px;">⏳ Currently in session</div>' : ''}
+                        ${statusClass === 'next' ? '<div style="color: #fbbc04; font-size: 12px; margin-top: 8px;">⏰ Starting soon</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Display schedules for admin
+        function displayAdminSchedules() {
+            const sortedSchedules = [...schedules].sort((a, b) => {
+                const dayOrder = {Monday:1, Tuesday:2, Wednesday:3, Thursday:4, Friday:5};
+                if (dayOrder[a.day] !== dayOrder[b.day]) {
+                    return dayOrder[a.day] - dayOrder[b.day];
+                }
+                return a.startTime.localeCompare(b.startTime);
+            });
+
+            const adminList = document.getElementById('adminScheduleList');
+            
+            if (sortedSchedules.length === 0) {
+                adminList.innerHTML = '<div class="empty-state">No schedules added yet. Click "Add New Class" to begin.</div>';
+                return;
+            }
+
+            adminList.innerHTML = sortedSchedules.map(schedule => `
+                <div class="schedule-card">
+                    <div class="card-header">
+                        <div>
+                            <div class="course-name">${schedule.course}</div>
+                            <div class="course-module">${schedule.module}</div>
+                        </div>
+                        <div class="time-badge">${schedule.startTime} - ${schedule.endTime}</div>
+                    </div>
+                    <div class="card-details">
+                        <div class="detail-item"><i>📅</i> ${schedule.day}</div>
+                        <div class="detail-item"><i>📍</i> ${schedule.venue}</div>
+                    </div>
+                    <div class="admin-actions">
+                        <button class="edit-btn" onclick="editSchedule(${schedule.id})">✏️ Edit</button>
+                        <button class="delete-btn" onclick="deleteSchedule(${schedule.id})">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Show add form
+        function showAddForm() {
+            editingId = null;
+            document.getElementById('formTitle').textContent = 'Add New Class';
+            document.getElementById('editDay').value = 'Monday';
+            document.getElementById('editCourse').value = '';
+            document.getElementById('editModule').value = '';
+            document.getElementById('editVenue').value = '';
+            document.getElementById('editStartTime').value = '09:00';
+            document.getElementById('editEndTime').value = '10:30';
+            document.getElementById('scheduleForm').style.display = 'block';
+        }
+
+        // Hide form
+        function hideForm() {
+            document.getElementById('scheduleForm').style.display = 'none';
+            editingId = null;
+        }
+
+        // Edit schedule
+        function editSchedule(id) {
+            const schedule = schedules.find(s => s.id === id);
+            if (schedule) {
+                editingId = id;
+                document.getElementById('formTitle').textContent = 'Edit Class';
+                document.getElementById('editDay').value = schedule.day;
+                document.getElementById('editCourse').value = schedule.course;
+                document.getElementById('editModule').value = schedule.module;
+                document.getElementById('editVenue').value = schedule.venue;
+                document.getElementById('editStartTime').value = schedule.startTime;
+                document.getElementById('editEndTime').value = schedule.endTime;
+                document.getElementById('scheduleForm').style.display = 'block';
+            }
+        }
+
+        // Save schedule
+        function saveSchedule() {
+            const day = document.getElementById('editDay').value;
+            const course = document.getElementById('editCourse').value;
+            const module = document.getElementById('editModule').value;
+            const venue = document.getElementById('editVenue').value;
+            const startTime = document.getElementById('editStartTime').value;
+            const endTime = document.getElementById('editEndTime').value;
+
+            if (!course || !module || !venue) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (editingId) {
+                // Update existing
+                const index = schedules.findIndex(s => s.id === editingId);
+                if (index !== -1) {
+                    schedules[index] = {
+                        ...schedules[index],
+                        day, course, module, venue, startTime, endTime
+                    };
+                }
+            } else {
+                // Add new
+                const newId = Math.max(...schedules.map(s => s.id), 0) + 1;
+                schedules.push({
+                    id: newId,
+                    day, course, module, venue, startTime, endTime
+                });
+            }
+
+            // Save to localStorage
+            localStorage.setItem('schedules', JSON.stringify(schedules));
+            
+            hideForm();
+            displayAdminSchedules();
+            displaySchedules();
+        }
+
+        // Delete schedule
+        function deleteSchedule(id) {
+            if (confirm('Are you sure you want to delete this class?')) {
+                schedules = schedules.filter(s => s.id !== id);
+                localStorage.setItem('schedules', JSON.stringify(schedules));
+                displayAdminSchedules();
+                displaySchedules();
+            }
+        }
+
+        // Initialize
+        function init() {
+            // Save initial data to localStorage if empty
+            if (!localStorage.getItem('schedules')) {
+                localStorage.setItem('schedules', JSON.stringify(schedules));
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
